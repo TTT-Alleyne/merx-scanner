@@ -1,0 +1,9 @@
+services:
+  merx-scanner:
+    build: .
+    env_file: .env
+    volumes:
+      - C:\Users\tatia\OneDrive\AlleyneAdmAgent\criteria-manager\criteria-manager\data:/data:ro
+      - ./results:/results
+      - ./known_clients.json:/app/known_clients.json:ro
+    restart: "no"
