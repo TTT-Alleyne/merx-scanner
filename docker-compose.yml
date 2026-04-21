@@ -1,9 +1,18 @@
+version: "3.8"
+
 services:
-  merx-scanner:
+  bid-scanner:
     build: .
     env_file: .env
     volumes:
-      - C:\Users\tatia\OneDrive\AlleyneAdmAgent\criteria-manager\criteria-manager\data:/data:ro
+      - C:\Users\tatia\OneDrive\AlleyneAdmAgent\criteria-manager\criteria-manager\data:/data
+      - ./known_clients.json:/app/known_clients.json
       - ./results:/results
-      - ./known_clients.json:/app/known_clients.json:ro
-    restart: "no"
+    restart: "no"  # Uncomment to run on a schedule (requires docker-compose cron or external scheduler)
+  # scheduler:
+  #   image: mcuadros/ofelia:latest
+  #   depends_on:
+  #     - bid-scanner
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./scheduler.ini:/etc/ofelia/config.ini
