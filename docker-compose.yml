@@ -1,18 +1,67 @@
-version: "3.8"
-
 services:
-  bid-scanner:
+
+  merx-scanner:
     build: .
     env_file: .env
+    environment:
+      - PLATFORMS=Merx
     volumes:
-      - C:\Users\tatia\OneDrive\AlleyneAdmAgent\criteria-manager\criteria-manager\data:/data
+      - //c/Users/tatia/OneDrive/AlleyneAdmAgent/criteria-manager/criteria-manager/data:/data
       - ./known_clients.json:/app/known_clients.json
       - ./results:/results
-    restart: "no"  # Uncomment to run on a schedule (requires docker-compose cron or external scheduler)
-  # scheduler:
-  #   image: mcuadros/ofelia:latest
-  #   depends_on:
-  #     - bid-scanner
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - ./scheduler.ini:/etc/ofelia/config.ini
+    restart: "no"
+
+  biddingo-scanner:
+    build: .
+    env_file: .env
+    environment:
+      - PLATFORMS=Biddingo
+    volumes:
+      - //c/Users/tatia/OneDrive/AlleyneAdmAgent/criteria-manager/criteria-manager/data:/data
+      - ./known_clients.json:/app/known_clients.json
+      - ./results:/results
+    restart: "no"
+
+  bonfire-scanner:
+    build: .
+    env_file: .env
+    environment:
+      - PLATFORMS=Bonfire
+      - BONFIRE_MIN_DAYS=3
+    volumes:
+      - //c/Users/tatia/OneDrive/AlleyneAdmAgent/criteria-manager/criteria-manager/data:/data
+      - ./known_clients.json:/app/known_clients.json
+      - ./results:/results
+    restart: "no"
+
+  amci-scanner:
+    build: .
+    env_file: .env
+    environment:
+      - PLATFORMS=AMCI
+    volumes:
+      - //c/Users/tatia/OneDrive/AlleyneAdmAgent/criteria-manager/criteria-manager/data:/data
+      - ./known_clients.json:/app/known_clients.json
+      - ./results:/results
+    restart: "no"
+
+  combiner:
+    build: .
+    env_file: .env
+    environment:
+      - PLATFORMS=Merx,Biddingo,Bonfire,AMCI
+    volumes:
+      - //c/Users/tatia/OneDrive/AlleyneAdmAgent/criteria-manager/criteria-manager/data:/data
+      - ./known_clients.json:/app/known_clients.json
+      - ./results:/results
+    command: python combiner.py
+    depends_on:
+      merx-scanner:
+        condition: service_completed_successfully
+      biddingo-scanner:
+        condition: service_completed_successfully
+      bonfire-scanner:
+        condition: service_completed_successfully
+      amci-scanner:
+        condition: service_completed_successfully
+    restart: "no"
